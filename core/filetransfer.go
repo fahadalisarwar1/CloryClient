@@ -14,18 +14,21 @@ type FileStruct struct {
 }
 
 func (c *Client) DownloadFile(){
+	// decoder to receive file sent from server
 	dec := gob.NewDecoder(c.Conn)
 	fs := &FileStruct{}
-	err := dec.Decode(fs)
-
+	err := dec.Decode(fs)		// receiving serialized file
 	DisplayMsg(err)
-	fmt.Println("Before Decryption: ", fs.FileContent)
+
+	// since the recieved data is encrypted, it must be decrypted using the key
 	DecryptedData := Decrypt(fs.FileContent, string(fs.EncryptionKey))
-	fmt.Println("Decrypted data", DecryptedData)
+
+	// create a new file to store sent content
 	fo, err := os.Create(fs.FileName)
 	DisplayMsg(err)
-	_, err = fo.Write(DecryptedData)
+	_, err = fo.Write(DecryptedData) // write decrypted data to file
 	DisplayMsg(err)
 	err = fo.Close()
 	DisplayMsg(err)
+	fmt.Println("successfully saved file")
 }
